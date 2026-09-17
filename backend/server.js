@@ -7,7 +7,7 @@ const authRoutes = require("./routes/authRoutes");
 const protect = require("./middleware/authMiddleware");
 const productRoutes = require("./routes/productRoutes");
 const adminRoutes = require("./routes/adminRoutes");
-
+const cartRoutes = require("./routes/cartRoutes");
 
 
 const app = express();
@@ -41,7 +41,7 @@ app.use("/api/auth", authRoutes);
 
 app.use("/api/products", productRoutes);
 app.use("/api/admin", adminRoutes);
-
+app.use("/api/cart", cartRoutes);
 app.get("/api/auth/profile", protect, (req, res) => {
   res.json({
     success: true,
