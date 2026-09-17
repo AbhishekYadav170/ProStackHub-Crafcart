@@ -1,4 +1,5 @@
 const Order = require("../models/Order");
+const Product = require("../models/Product");
 
 // ========================================
 // GET ALL ORDERS
@@ -72,12 +73,20 @@ const updateOrderStatus = async (req, res) => {
       "cancelled",
     ];
 
+    // ------------------------------------
+    // Validate status
+    // ------------------------------------
+
     if (!allowedStatuses.includes(status)) {
       return res.status(400).json({
         success: false,
         message: "Invalid order status",
       });
     }
+
+    // ------------------------------------
+    // Find order
+    // ------------------------------------
 
     const order = await Order.findById(req.params.id);
 
@@ -88,9 +97,69 @@ const updateOrderStatus = async (req, res) => {
       });
     }
 
+    // ------------------------------------
+    // Already cancelled
+    // ------------------------------------
+
+    if (
+      order.orderStatus === "cancelled" &&
+      status !== "cancelled"
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Cancelled order cannot be changed",
+      });
+    }
+
+    // ------------------------------------
+    // Delivered order cannot be cancelled
+    // ------------------------------------
+
+    if (
+      order.orderStatus === "delivered" &&
+      status === "cancelled"
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Delivered order cannot be cancelled",
+      });
+    }
+
+    // ------------------------------------
+    // Cancel order
+    // ------------------------------------
+
+    if (
+      status === "cancelled" &&
+      order.orderStatus !== "cancelled"
+    ) {
+      // Restore stock
+      for (const item of order.items) {
+        await Product.findByIdAndUpdate(
+          item.product,
+          {
+            $inc: {
+              stock: item.quantity,
+            },
+          }
+        );
+      }
+
+      console.log(
+        `Stock restored for cancelled order: ${order.orderNumber}`
+      );
+    }
+
+    // ------------------------------------
+    // Update status
+    // ------------------------------------
+
     order.orderStatus = status;
 
-    // COD order becomes paid only after delivery
+    // ------------------------------------
+    // COD becomes paid after delivery
+    // ------------------------------------
+
     if (
       order.paymentMethod === "cod" &&
       status === "delivered"
@@ -129,12 +198,20 @@ const updatePaymentStatus = async (req, res) => {
       "failed",
     ];
 
+    // ------------------------------------
+    // Validate payment status
+    // ------------------------------------
+
     if (!allowedStatuses.includes(paymentStatus)) {
       return res.status(400).json({
         success: false,
         message: "Invalid payment status",
       });
     }
+
+    // ------------------------------------
+    // Find order
+    // ------------------------------------
 
     const order = await Order.findById(req.params.id);
 
@@ -144,6 +221,10 @@ const updatePaymentStatus = async (req, res) => {
         message: "Order not found",
       });
     }
+
+    // ------------------------------------
+    // Update payment status
+    // ------------------------------------
 
     order.paymentStatus = paymentStatus;
 
@@ -163,6 +244,10 @@ const updatePaymentStatus = async (req, res) => {
     });
   }
 };
+
+// ========================================
+// EXPORT
+// ========================================
 
 module.exports = {
   getAllOrders,
