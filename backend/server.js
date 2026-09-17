@@ -4,6 +4,11 @@ require("dotenv").config();
 
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
+const protect = require("./middleware/authMiddleware");
+const productRoutes = require("./routes/productRoutes");
+const adminRoutes = require("./routes/adminRoutes");
+
+
 
 const app = express();
 
@@ -34,6 +39,15 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 
+app.use("/api/products", productRoutes);
+app.use("/api/admin", adminRoutes);
+
+app.get("/api/auth/profile", protect, (req, res) => {
+  res.json({
+    success: true,
+    user: req.user,
+  });
+});
 // ================================
 // TEST ROUTE
 // ================================
@@ -44,6 +58,9 @@ app.get("/", (req, res) => {
     message: "CartCraft API is running 🚀",
   });
 });
+
+
+
 
 // ================================
 // SERVER

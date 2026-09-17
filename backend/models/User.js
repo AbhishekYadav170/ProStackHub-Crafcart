@@ -34,21 +34,34 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-// Password ko database me save karne se pehle hash karo
-userSchema.pre("save", async function (next) {
+// ========================================
+// PASSWORD HASHING
+// ========================================
+
+userSchema.pre("save", async function () {
   if (!this.isModified("password")) {
-    return next();
+    return;
   }
 
   const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
 
-  next();
+  this.password = await bcrypt.hash(
+    this.password,
+    salt
+  );
 });
 
-// Login ke time password compare karne ke liye
-userSchema.methods.comparePassword = async function (enteredPassword) {
-  return bcrypt.compare(enteredPassword, this.password);
+// ========================================
+// PASSWORD COMPARISON
+// ========================================
+
+userSchema.methods.comparePassword = async function (
+  enteredPassword
+) {
+  return bcrypt.compare(
+    enteredPassword,
+    this.password
+  );
 };
 
 const User = mongoose.model("User", userSchema);
