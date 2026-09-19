@@ -106,9 +106,7 @@ export default function ProductDetailsPage() {
       console.error("Add to cart error:", error);
 
       toast.error(
-        error instanceof Error
-          ? error.message
-          : "Failed to add product to cart",
+        error instanceof Error ? error.message : "Failed to add product",
       );
     }
   };
