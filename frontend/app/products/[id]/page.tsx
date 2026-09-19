@@ -20,8 +20,7 @@ type Product = {
 export default function ProductDetailsPage() {
   const params = useParams();
 
-  const [product, setProduct] =
-    useState<Product | null>(null);
+  const [product, setProduct] = useState<Product | null>(null);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -31,9 +30,7 @@ export default function ProductDetailsPage() {
       try {
         setLoading(true);
 
-        const data = await api(
-          `/products/${params.id}`
-        );
+        const data = await api(`/products/${params.id}`);
 
         setProduct(data.product);
       } catch (error) {
@@ -50,46 +47,70 @@ export default function ProductDetailsPage() {
     }
   }, [params.id]);
 
-  const addToCart = () => {
+  // const addToCart = () => {
+  //   if (!product) return;
+
+  //   const existingCart = JSON.parse(
+  //     localStorage.getItem("cart") || "[]"
+  //   );
+
+  //   const existingProduct = existingCart.find(
+  //     (item: Product & { quantity: number }) =>
+  //       item._id === product._id
+  //   );
+
+  //   let updatedCart;
+
+  //   if (existingProduct) {
+  //     updatedCart = existingCart.map(
+  //       (item: Product & { quantity: number }) =>
+  //         item._id === product._id
+  //           ? {
+  //               ...item,
+  //               quantity: item.quantity + 1,
+  //             }
+  //           : item
+  //     );
+  //   } else {
+  //     updatedCart = [
+  //       ...existingCart,
+  //       {
+  //         ...product,
+  //         quantity: 1,
+  //       },
+  //     ];
+  //   }
+
+  //   localStorage.setItem(
+  //     "cart",
+  //     JSON.stringify(updatedCart)
+  //   );
+
+  //   toast.success("Product added to cart!");
+  // };
+
+  const addToCart = async () => {
     if (!product) return;
 
-    const existingCart = JSON.parse(
-      localStorage.getItem("cart") || "[]"
-    );
-
-    const existingProduct = existingCart.find(
-      (item: Product & { quantity: number }) =>
-        item._id === product._id
-    );
-
-    let updatedCart;
-
-    if (existingProduct) {
-      updatedCart = existingCart.map(
-        (item: Product & { quantity: number }) =>
-          item._id === product._id
-            ? {
-                ...item,
-                quantity: item.quantity + 1,
-              }
-            : item
-      );
-    } else {
-      updatedCart = [
-        ...existingCart,
-        {
-          ...product,
+    try {
+      await api("/cart", {
+        method: "POST",
+        body: JSON.stringify({
+          productId: product._id,
           quantity: 1,
-        },
-      ];
+        }),
+      });
+
+      toast.success("Product added to cart!");
+    } catch (error) {
+      console.error("Add to cart error:", error);
+
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to add product to cart",
+      );
     }
-
-    localStorage.setItem(
-      "cart",
-      JSON.stringify(updatedCart)
-    );
-
-    toast.success("Product added to cart!");
   };
 
   if (loading) {
@@ -110,10 +131,7 @@ export default function ProductDetailsPage() {
 
           <br />
 
-          <Link
-            href="/products"
-            className="primary-button"
-          >
+          <Link href="/products" className="primary-button">
             Back to Products
           </Link>
         </div>
@@ -124,7 +142,6 @@ export default function ProductDetailsPage() {
   return (
     <main className="section">
       <div className="container">
-
         <Link
           href="/products"
           className="secondary-button"
@@ -132,24 +149,18 @@ export default function ProductDetailsPage() {
             marginBottom: "35px",
           }}
         >
-          <ArrowLeft
-            size={17}
-            style={{ marginRight: "8px" }}
-          />
-
+          <ArrowLeft size={17} style={{ marginRight: "8px" }} />
           Back to Products
         </Link>
 
         <div
           style={{
             display: "grid",
-            gridTemplateColumns:
-              "minmax(0, 1fr) minmax(0, 1fr)",
+            gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
             gap: "50px",
             alignItems: "center",
           }}
         >
-
           {/* PRODUCT IMAGE */}
 
           <div>
@@ -186,10 +197,7 @@ export default function ProductDetailsPage() {
           {/* PRODUCT INFORMATION */}
 
           <div>
-
-            <p className="product-category">
-              {product.category}
-            </p>
+            <p className="product-category">{product.category}</p>
 
             <h1
               style={{
@@ -220,8 +228,7 @@ export default function ProductDetailsPage() {
                 marginBottom: "30px",
               }}
             >
-              {product.description ||
-                "Premium quality product from CartCraft."}
+              {product.description || "Premium quality product from CartCraft."}
             </p>
 
             {product.stock !== undefined && (
@@ -247,14 +254,10 @@ export default function ProductDetailsPage() {
               }}
             >
               <ShoppingCart size={19} />
-
               Add to Cart
             </button>
-
           </div>
-
         </div>
-
       </div>
     </main>
   );
