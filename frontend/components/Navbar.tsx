@@ -1,30 +1,90 @@
 // "use client";
 
+// import { useEffect, useState } from "react";
 // import Link from "next/link";
 // import {
 //   Search,
 //   ShoppingCart,
 //   User,
+//   LogOut,
+//   Package,
 // } from "lucide-react";
 
 // export default function Navbar() {
+//   const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+//   // ========================================
+//   // CHECK LOGIN
+//   // ========================================
+
+//   useEffect(() => {
+//     const checkLogin = () => {
+//       const token = localStorage.getItem("token");
+
+//       setIsLoggedIn(Boolean(token));
+//     };
+
+//     checkLogin();
+
+//     window.addEventListener(
+//       "storage",
+//       checkLogin
+//     );
+
+//     return () => {
+//       window.removeEventListener(
+//         "storage",
+//         checkLogin
+//       );
+//     };
+//   }, []);
+
+//   // ========================================
+//   // LOGOUT
+//   // ========================================
+
+//   const handleLogout = () => {
+//     localStorage.removeItem("token");
+
+//     // Remove old cart data also
+//     localStorage.removeItem("cart");
+
+//     setIsLoggedIn(false);
+
+//     window.location.href = "/login";
+//   };
+
 //   return (
 //     <header className="navbar">
 //       <div className="navbar-inner">
+
+//         {/* LOGO */}
 
 //         <Link href="/" className="logo">
 //           CartCraft
 //         </Link>
 
+//         {/* NAVIGATION */}
+
 //         <nav className="nav-links">
-//           <Link href="/">Home</Link>
-//           <Link href="/products">Shop</Link>
+//           <Link href="/">
+//             Home
+//           </Link>
+
+//           <Link href="/products">
+//             Shop
+//           </Link>
+
 //           <Link href="/categories">
 //             Categories
 //           </Link>
 //         </nav>
 
+//         {/* ACTIONS */}
+
 //         <div className="nav-actions">
+
+//           {/* SEARCH */}
 
 //           <Link
 //             href="/products"
@@ -33,6 +93,8 @@
 //           >
 //             <Search size={20} />
 //           </Link>
+
+//           {/* CART */}
 
 //           <Link
 //             href="/cart"
@@ -46,21 +108,57 @@
 //             </span>
 //           </Link>
 
-//           <Link
-//             href="/login"
-//             className="nav-icon"
-//             aria-label="Account"
-//           >
-//             <User size={20} />
-//           </Link>
+//           {/* USER */}
+
+//           {isLoggedIn ? (
+//             <>
+//               {/* MY ORDERS */}
+
+//               <Link
+//                 href="/orders"
+//                 className="nav-icon"
+//                 aria-label="My Orders"
+//                 title="My Orders"
+//               >
+//                 <Package size={20} />
+//               </Link>
+
+//               {/* LOGOUT */}
+
+//               <button
+//                 type="button"
+//                 onClick={handleLogout}
+//                 className="nav-icon"
+//                 aria-label="Logout"
+//                 title="Logout"
+//                 style={{
+//                   border: "none",
+//                   background: "transparent",
+//                   cursor: "pointer",
+//                   padding: 0,
+//                 }}
+//               >
+//                 <LogOut size={20} />
+//               </button>
+//             </>
+//           ) : (
+//             /* LOGIN */
+
+//             <Link
+//               href="/login"
+//               className="nav-icon"
+//               aria-label="Login"
+//               title="Login"
+//             >
+//               <User size={20} />
+//             </Link>
+//           )}
 
 //         </div>
-
 //       </div>
 //     </header>
 //   );
 // }
-
 
 
 
@@ -78,32 +176,106 @@ import {
   LogOut,
   Package,
 } from "lucide-react";
+import api from "@/lib/api";
 
 export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
 
   // ========================================
   // CHECK LOGIN
   // ========================================
 
-  useEffect(() => {
-    const checkLogin = () => {
+  const checkLogin = () => {
+    const token = localStorage.getItem("token");
+
+    setIsLoggedIn(Boolean(token));
+
+    return Boolean(token);
+  };
+
+  // ========================================
+  // GET CART COUNT
+  // ========================================
+
+  const fetchCartCount = async () => {
+    try {
       const token = localStorage.getItem("token");
 
-      setIsLoggedIn(Boolean(token));
+      if (!token) {
+        setCartCount(0);
+        return;
+      }
+
+      const data = await api("/cart");
+
+      const items = data.cart?.items || [];
+
+      const count = items.reduce(
+        (
+          total: number,
+          item: { quantity?: number }
+        ) => total + (item.quantity || 0),
+        0
+      );
+
+      setCartCount(count);
+    } catch (error) {
+      console.error(
+        "Fetch cart count error:",
+        error
+      );
+
+      setCartCount(0);
+    }
+  };
+
+  // ========================================
+  // INITIAL LOAD
+  // ========================================
+
+  useEffect(() => {
+    const loggedIn = checkLogin();
+
+    if (loggedIn) {
+      fetchCartCount();
+    }
+
+    // Login/logout from another tab
+    const handleStorage = () => {
+      const loggedIn = checkLogin();
+
+      if (loggedIn) {
+        fetchCartCount();
+      } else {
+        setCartCount(0);
+      }
     };
 
-    checkLogin();
+    // Cart update from other components
+    const handleCartUpdate = () => {
+      fetchCartCount();
+    };
 
     window.addEventListener(
       "storage",
-      checkLogin
+      handleStorage
+    );
+
+    window.addEventListener(
+      "cartUpdated",
+      handleCartUpdate
     );
 
     return () => {
       window.removeEventListener(
         "storage",
-        checkLogin
+        handleStorage
+      );
+
+      window.removeEventListener(
+        "cartUpdated",
+        handleCartUpdate
       );
     };
   }, []);
@@ -115,10 +287,11 @@ export default function Navbar() {
   const handleLogout = () => {
     localStorage.removeItem("token");
 
-    // Remove old cart data also
+    // Remove old local cart
     localStorage.removeItem("cart");
 
     setIsLoggedIn(false);
+    setCartCount(0);
 
     window.location.href = "/login";
   };
@@ -129,7 +302,10 @@ export default function Navbar() {
 
         {/* LOGO */}
 
-        <Link href="/" className="logo">
+        <Link
+          href="/"
+          className="logo"
+        >
           CartCraft
         </Link>
 
@@ -159,6 +335,7 @@ export default function Navbar() {
             href="/products"
             className="nav-icon"
             aria-label="Search"
+            title="Search"
           >
             <Search size={20} />
           </Link>
@@ -169,15 +346,20 @@ export default function Navbar() {
             href="/cart"
             className="nav-icon"
             aria-label="Cart"
+            title="Cart"
           >
             <ShoppingCart size={20} />
 
-            <span className="cart-badge">
-              0
-            </span>
+            {cartCount > 0 && (
+              <span className="cart-badge">
+                {cartCount > 99
+                  ? "99+"
+                  : cartCount}
+              </span>
+            )}
           </Link>
 
-          {/* USER */}
+          {/* LOGGED IN */}
 
           {isLoggedIn ? (
             <>
