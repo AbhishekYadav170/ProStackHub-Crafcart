@@ -1,5 +1,9 @@
 import Link from "next/link";
 
+
+// Production deployment update
+
+
 const categories = [
   {
     icon: "👕",
@@ -165,3 +169,4 @@ export default function Home() {
     </main>
   );
 }
+
