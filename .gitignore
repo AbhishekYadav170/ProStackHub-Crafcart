@@ -11,6 +11,8 @@ frontend/node_modules/
 backend/node_modules/
 
 
-# Next.js build output
+# Next.js build output/
 frontend/.next/
 frontend/node_modules/
+
+
