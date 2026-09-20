@@ -9,42 +9,101 @@ import {
 // const categories = [
 //   {
 //     name: "Electronics",
-//     description: "Latest gadgets and electronic products",
+//     description: "Latest gadgets, devices and electronic products",
 //     emoji: "📱",
 //     search: "electronics",
 //   },
 //   {
 //     name: "Fashion",
-//     description: "Trendy clothes and fashion products",
+//     description: "Trendy clothes, footwear and fashion accessories",
 //     emoji: "👕",
 //     search: "fashion",
 //   },
 //   {
 //     name: "Home & Living",
-//     description: "Products to make your home better",
+//     description: "Furniture, decor and useful home essentials",
 //     emoji: "🏠",
 //     search: "home",
 //   },
 //   {
 //     name: "Beauty",
-//     description: "Beauty and personal care products",
+//     description: "Beauty, skincare and personal care products",
 //     emoji: "✨",
 //     search: "beauty",
 //   },
 //   {
-//     name: "Sports",
-//     description: "Sports and fitness essentials",
+//     name: "Sports & Fitness",
+//     description: "Sports equipment and fitness essentials",
 //     emoji: "⚽",
 //     search: "sports",
 //   },
 //   {
 //     name: "Books",
-//     description: "Books for learning and entertainment",
+//     description: "Books for learning, knowledge and entertainment",
 //     emoji: "📚",
 //     search: "books",
 //   },
+//   {
+//     name: "Grocery",
+//     description: "Daily essentials, food and household groceries",
+//     emoji: "🛒",
+//     search: "grocery",
+//   },
+//   {
+//     name: "Toys & Games",
+//     description: "Fun toys, games and entertainment products",
+//     emoji: "🧸",
+//     search: "toys",
+//   },
+//   {
+//     name: "Jewelry",
+//     description: "Beautiful jewelry and fashion accessories",
+//     emoji: "💎",
+//     search: "jewelry",
+//   },
+//   {
+//     name: "Footwear",
+//     description: "Shoes, sneakers, sandals and more",
+//     emoji: "👟",
+//     search: "footwear",
+//   },
+//   {
+//     name: "Automotive",
+//     description: "Car, bike accessories and automotive essentials",
+//     emoji: "🚗",
+//     search: "automotive",
+//   },
+//   {
+//     name: "Health & Wellness",
+//     description: "Health, wellness and personal care essentials",
+//     emoji: "💊",
+//     search: "health",
+//   },
+//   {
+//     name: "Pet Supplies",
+//     description: "Food, toys and accessories for your pets",
+//     emoji: "🐶",
+//     search: "pets",
+//   },
+//   {
+//     name: "Kitchen",
+//     description: "Kitchen tools, appliances and cooking essentials",
+//     emoji: "🍳",
+//     search: "kitchen",
+//   },
+//   {
+//     name: "Office & Stationery",
+//     description: "Office supplies, stationery and study essentials",
+//     emoji: "📒",
+//     search: "office",
+//   },
+//   {
+//     name: "Travel",
+//     description: "Travel bags, accessories and useful travel products",
+//     emoji: "✈️",
+//     search: "travel",
+//   },
 // ];
-
 const categories = [
   {
     name: "Electronics",
@@ -83,38 +142,26 @@ const categories = [
     search: "books",
   },
   {
-    name: "Groceries",
-    description: "Daily groceries and essential items",
-    emoji: "🛒",
-    search: "groceries",
-  },
-  {
-    name: "Furniture",
-    description: "Stylish furniture for every room",
-    emoji: "🛋️",
-    search: "furniture",
-  },
-  {
-    name: "Toys & Games",
-    description: "Fun toys and games for everyone",
+    name: "Gaming",
+    description: "Gaming consoles, accessories and more",
     emoji: "🎮",
+    search: "gaming",
+  },
+  {
+    name: "Computers",
+    description: "Laptops, computers and accessories",
+    emoji: "💻",
+    search: "computers",
+  },
+  {
+    name: "Toys & Kids",
+    description: "Fun and educational products for kids",
+    emoji: "🧸",
     search: "toys",
   },
   {
-    name: "Jewellery",
-    description: "Elegant jewellery and accessories",
-    emoji: "💎",
-    search: "jewellery",
-  },
-  {
-    name: "Footwear",
-    description: "Comfortable and stylish footwear",
-    emoji: "👟",
-    search: "footwear",
-  },
-  {
     name: "Kitchen",
-    description: "Useful products for your kitchen",
+    description: "Useful kitchen and cooking products",
     emoji: "🍳",
     search: "kitchen",
   },
@@ -125,25 +172,12 @@ const categories = [
     search: "automotive",
   },
   {
-    name: "Pet Supplies",
-    description: "Everything your pets need",
-    emoji: "🐶",
-    search: "pets",
-  },
-  {
-    name: "Health & Wellness",
-    description: "Products for a healthy lifestyle",
-    emoji: "💪",
-    search: "health",
-  },
-  {
-    name: "Office & Stationery",
-    description: "Office supplies and stationery products",
-    emoji: "📝",
-    search: "stationery",
+    name: "Accessories",
+    description: "Bags, watches and everyday accessories",
+    emoji: "👜",
+    search: "accessories",
   },
 ];
-
 export default function CategoriesPage() {
   return (
     <main className="section">
@@ -196,6 +230,7 @@ export default function CategoriesPage() {
                   height: "100%",
                 }}
               >
+
                 {/* ICON */}
 
                 <div
@@ -255,6 +290,7 @@ export default function CategoriesPage() {
 
                   <ArrowRight size={16} />
                 </div>
+
               </div>
             </Link>
           ))}
