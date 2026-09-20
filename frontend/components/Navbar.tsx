@@ -1,3 +1,4 @@
+
 // "use client";
 
 // import { useEffect, useState } from "react";
@@ -9,32 +10,106 @@
 //   LogOut,
 //   Package,
 // } from "lucide-react";
+// import api from "@/lib/api";
 
 // export default function Navbar() {
 //   const [isLoggedIn, setIsLoggedIn] = useState(false);
+//   const [cartCount, setCartCount] = useState(0);
 
 //   // ========================================
 //   // CHECK LOGIN
 //   // ========================================
 
-//   useEffect(() => {
-//     const checkLogin = () => {
+//   const checkLogin = () => {
+//     const token = localStorage.getItem("token");
+
+//     setIsLoggedIn(Boolean(token));
+
+//     return Boolean(token);
+//   };
+
+//   // ========================================
+//   // GET CART COUNT
+//   // ========================================
+
+//   const fetchCartCount = async () => {
+//     try {
 //       const token = localStorage.getItem("token");
 
-//       setIsLoggedIn(Boolean(token));
+//       if (!token) {
+//         setCartCount(0);
+//         return;
+//       }
+
+//       const data = await api("/cart");
+
+//       const items = data.cart?.items || [];
+
+//       const count = items.reduce(
+//         (
+//           total: number,
+//           item: { quantity?: number }
+//         ) => total + (item.quantity || 0),
+//         0
+//       );
+
+//       setCartCount(count);
+//     } catch (error) {
+//       console.error(
+//         "Fetch cart count error:",
+//         error
+//       );
+
+//       setCartCount(0);
+//     }
+//   };
+
+//   // ========================================
+//   // INITIAL LOAD
+//   // ========================================
+
+//   useEffect(() => {
+//     const loggedIn = checkLogin();
+
+//     if (loggedIn) {
+//       fetchCartCount();
+//     }
+
+//     // Login/logout from another tab
+//     const handleStorage = () => {
+//       const loggedIn = checkLogin();
+
+//       if (loggedIn) {
+//         fetchCartCount();
+//       } else {
+//         setCartCount(0);
+//       }
 //     };
 
-//     checkLogin();
+//     // Cart update from other components
+//     const handleCartUpdate = () => {
+//       fetchCartCount();
+//     };
 
 //     window.addEventListener(
 //       "storage",
-//       checkLogin
+//       handleStorage
+//     );
+
+//     window.addEventListener(
+//       "cartUpdated",
+//       handleCartUpdate
 //     );
 
 //     return () => {
 //       window.removeEventListener(
 //         "storage",
-//         checkLogin
+//         handleStorage
+//       );
+
+//       window.removeEventListener(
+//         "cartUpdated",
+//         handleCartUpdate
 //       );
 //     };
 //   }, []);
@@ -46,10 +121,11 @@
 //   const handleLogout = () => {
 //     localStorage.removeItem("token");
 
-//     // Remove old cart data also
+//     // Remove old local cart
 //     localStorage.removeItem("cart");
 
 //     setIsLoggedIn(false);
+//     setCartCount(0);
 
 //     window.location.href = "/login";
 //   };
@@ -60,7 +136,10 @@
 
 //         {/* LOGO */}
 
-//         <Link href="/" className="logo">
+//         <Link
+//           href="/"
+//           className="logo"
+//         >
 //           CartCraft
 //         </Link>
 
@@ -90,6 +169,7 @@
 //             href="/products"
 //             className="nav-icon"
 //             aria-label="Search"
+//             title="Search"
 //           >
 //             <Search size={20} />
 //           </Link>
@@ -100,15 +180,20 @@
 //             href="/cart"
 //             className="nav-icon"
 //             aria-label="Cart"
+//             title="Cart"
 //           >
 //             <ShoppingCart size={20} />
 
-//             <span className="cart-badge">
-//               0
-//             </span>
+//             {cartCount > 0 && (
+//               <span className="cart-badge">
+//                 {cartCount > 99
+//                   ? "99+"
+//                   : cartCount}
+//               </span>
+//             )}
 //           </Link>
 
-//           {/* USER */}
+//           {/* LOGGED IN */}
 
 //           {isLoggedIn ? (
 //             <>
@@ -164,7 +249,6 @@
 
 
 
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -188,10 +272,11 @@ export default function Navbar() {
 
   const checkLogin = () => {
     const token = localStorage.getItem("token");
+    const loggedIn = Boolean(token);
 
-    setIsLoggedIn(Boolean(token));
+    setIsLoggedIn(loggedIn);
 
-    return Boolean(token);
+    return loggedIn;
   };
 
   // ========================================
@@ -212,10 +297,8 @@ export default function Navbar() {
       const items = data.cart?.items || [];
 
       const count = items.reduce(
-        (
-          total: number,
-          item: { quantity?: number }
-        ) => total + (item.quantity || 0),
+        (total, item) =>
+          total + (item.quantity || 0),
         0
       );
 
@@ -241,8 +324,8 @@ export default function Navbar() {
       fetchCartCount();
     }
 
-    // Login/logout from another tab
-    const handleStorage = () => {
+    // Login / Logout event
+    const handleAuthChange = () => {
       const loggedIn = checkLogin();
 
       if (loggedIn) {
@@ -252,10 +335,20 @@ export default function Navbar() {
       }
     };
 
-    // Cart update from other components
+    // Another browser tab
+    const handleStorage = () => {
+      handleAuthChange();
+    };
+
+    // Cart update
     const handleCartUpdate = () => {
       fetchCartCount();
     };
+
+    window.addEventListener(
+      "authChanged",
+      handleAuthChange
+    );
 
     window.addEventListener(
       "storage",
@@ -268,6 +361,11 @@ export default function Navbar() {
     );
 
     return () => {
+      window.removeEventListener(
+        "authChanged",
+        handleAuthChange
+      );
+
       window.removeEventListener(
         "storage",
         handleStorage
@@ -286,12 +384,16 @@ export default function Navbar() {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-
-    // Remove old local cart
+    localStorage.removeItem("user");
     localStorage.removeItem("cart");
 
     setIsLoggedIn(false);
     setCartCount(0);
+
+    // Tell Navbar / other components
+    window.dispatchEvent(
+      new Event("authChanged")
+    );
 
     window.location.href = "/login";
   };
