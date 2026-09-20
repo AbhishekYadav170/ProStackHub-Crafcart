@@ -1,4 +1,3 @@
-
 // "use client";
 
 // import { useEffect, useState } from "react";
@@ -245,21 +244,11 @@
 //   );
 // }
 
-
-
-
-
 "use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import {
-  Search,
-  ShoppingCart,
-  User,
-  LogOut,
-  Package,
-} from "lucide-react";
+import { Search, ShoppingCart, User, LogOut, Package } from "lucide-react";
 import api from "@/lib/api";
 
 export default function Navbar() {
@@ -294,20 +283,18 @@ export default function Navbar() {
 
       const data = await api("/cart");
 
-      const items = data.cart?.items || [];
+      const items = data?.cart?.items || [];
 
       const count = items.reduce(
-        (total, item) =>
-          total + (item.quantity || 0),
-        0
+        (total: number, item: { quantity?: number }) => {
+          return total + Number(item?.quantity || 0);
+        },
+        0,
       );
 
       setCartCount(count);
     } catch (error) {
-      console.error(
-        "Fetch cart count error:",
-        error
-      );
+      console.error("Fetch cart count error:", error);
 
       setCartCount(0);
     }
@@ -345,36 +332,18 @@ export default function Navbar() {
       fetchCartCount();
     };
 
-    window.addEventListener(
-      "authChanged",
-      handleAuthChange
-    );
+    window.addEventListener("authChanged", handleAuthChange);
 
-    window.addEventListener(
-      "storage",
-      handleStorage
-    );
+    window.addEventListener("storage", handleStorage);
 
-    window.addEventListener(
-      "cartUpdated",
-      handleCartUpdate
-    );
+    window.addEventListener("cartUpdated", handleCartUpdate);
 
     return () => {
-      window.removeEventListener(
-        "authChanged",
-        handleAuthChange
-      );
+      window.removeEventListener("authChanged", handleAuthChange);
 
-      window.removeEventListener(
-        "storage",
-        handleStorage
-      );
+      window.removeEventListener("storage", handleStorage);
 
-      window.removeEventListener(
-        "cartUpdated",
-        handleCartUpdate
-      );
+      window.removeEventListener("cartUpdated", handleCartUpdate);
     };
   }, []);
 
@@ -391,46 +360,34 @@ export default function Navbar() {
     setCartCount(0);
 
     // Tell Navbar / other components
-    window.dispatchEvent(
-      new Event("authChanged")
-    );
+    window.dispatchEvent(new Event("authChanged"));
 
+    // Redirect to login
     window.location.href = "/login";
   };
 
   return (
     <header className="navbar">
       <div className="navbar-inner">
-
         {/* LOGO */}
 
-        <Link
-          href="/"
-          className="logo"
-        >
+        <Link href="/" className="logo">
           CartCraft
         </Link>
 
         {/* NAVIGATION */}
 
         <nav className="nav-links">
-          <Link href="/">
-            Home
-          </Link>
+          <Link href="/">Home</Link>
 
-          <Link href="/products">
-            Shop
-          </Link>
+          <Link href="/products">Shop</Link>
 
-          <Link href="/categories">
-            Categories
-          </Link>
+          <Link href="/categories">Categories</Link>
         </nav>
 
         {/* ACTIONS */}
 
         <div className="nav-actions">
-
           {/* SEARCH */}
 
           <Link
@@ -454,14 +411,12 @@ export default function Navbar() {
 
             {cartCount > 0 && (
               <span className="cart-badge">
-                {cartCount > 99
-                  ? "99+"
-                  : cartCount}
+                {cartCount > 99 ? "99+" : cartCount}
               </span>
             )}
           </Link>
 
-          {/* LOGGED IN */}
+          {/* AUTH */}
 
           {isLoggedIn ? (
             <>
@@ -489,6 +444,9 @@ export default function Navbar() {
                   background: "transparent",
                   cursor: "pointer",
                   padding: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
                 <LogOut size={20} />
@@ -506,7 +464,6 @@ export default function Navbar() {
               <User size={20} />
             </Link>
           )}
-
         </div>
       </div>
     </header>
