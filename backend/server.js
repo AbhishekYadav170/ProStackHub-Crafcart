@@ -29,20 +29,15 @@ connectDB();
 // MIDDLEWARE
 // ================================
 
-// app.use(
-//   cors({
-//     origin: "http://localhost:3000",
-//     credentials: true,
-//   })
-// );
-
-cors({
-  origin: [
-    "http://localhost:3000",
-    "https://pro-stack-hub-crafcart-15xc.vercel.app",
-  ],
-  credentials: true,
-})
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "https://pro-stack-hub-crafcart-15xc.vercel.app",
+    ],
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 
