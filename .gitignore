@@ -2,7 +2,7 @@
 
 # Environment files
 .env
-frontend/.env
+
 backend/.env
 
 # Node modules
