@@ -1,9 +1,9 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
-// ========================================
+// ==================
 // Generate JWT
-// ========================================
+// ==================
 
 const generateToken = (userId) => {
   return jwt.sign(
@@ -15,9 +15,9 @@ const generateToken = (userId) => {
   );
 };
 
-// ========================================
+// ===============
 // Register
-// ========================================
+// ===============
 
 const registerUser = async (req, res) => {
   try {
