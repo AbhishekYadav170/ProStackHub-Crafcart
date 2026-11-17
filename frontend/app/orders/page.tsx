@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Package, ShoppingBag } from "lucide-react";
